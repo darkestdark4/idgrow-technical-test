@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         if ($request->expectsJson()) {
             return response()->json([
                 'status' => $request->expectsJson(),
-                'message' => 'Unauthenticated. Silakan login terlebih dahulsu.'
+                'message' => 'Unauthenticated. Silakan login terlebih dahulu.'
             ], 401);
         }
     });
