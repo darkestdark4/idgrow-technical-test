@@ -77,7 +77,7 @@ class ProductController extends Controller
                 return response()->json([
                     "message" => "Product created successfully",
                     "data" => $product
-                ]);
+                ], 201);
             }
         } catch (ModelNotFoundException $e) {
             return response()->json([
