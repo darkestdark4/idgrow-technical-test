@@ -1,4 +1,4 @@
-# IDGrow Technical Test 2
+# IDGrow Technical Test
 
 Pengerjaan API untuk kebutuhan technical test dari IDGrow.
 
