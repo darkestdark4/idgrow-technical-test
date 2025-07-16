@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\FileUpload;
+use App\Models\Location;
 use App\Models\Product;
+use App\Models\ProductLocation;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Mockery\Matcher\Not;
 
 class ProductController extends Controller
 {
@@ -188,6 +192,59 @@ class ProductController extends Controller
             return response()->json([
                 "message" => "Product not found",
             ], 404);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function add_product_location(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'product' => 'required|exists:products,id',
+                'location' => 'required|exists:locations,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    "message" => "Error validation",
+                    "errors" => $validator->errors()
+                ], 400);
+            } else {
+                $productLoc = ProductLocation::create([
+                    'product_id' => $request->product,
+                    'location_id' => $request->location,
+                    'stock' => $request->stock
+                ]);
+
+                return response()->json([
+                    "message" => "Product location added successfully",
+                    "data" => $productLoc
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function remove_product_location(string $id)
+    {
+        try {
+            $productLoc = ProductLocation::findOrFail($id);
+
+            $productLoc->delete();
+
+            return response()->json([
+                "message" => "Product location removed successfully",
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "message" => "Product location not found",
+            ]);
         } catch (\Throwable $th) {
             return response()->json([
                 "message" => $th->getMessage(),

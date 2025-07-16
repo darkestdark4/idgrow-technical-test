@@ -14,6 +14,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('category', CategoryController::class);
 
     Route::post('product/location', [ProductController::class, 'add_product_location']);
+    Route::delete('product/location/{id}', [ProductController::class, 'remove_product_location']);
+
     Route::apiResource('product', ProductController::class);
     Route::apiResource('location', LocationController::class);
     Route::apiResource('user', UserController::class);
