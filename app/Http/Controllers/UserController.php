@@ -15,11 +15,29 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::all();
+            $users = User::with(['mutations.productLocation.product'])->get();
+
+            $result = $users->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'mutation' => $user->mutations->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product' => $item->productLocation->product->name,
+                            'type' => $item->type,
+                            'quantity' => $item->quantity,
+                            'date' => $item->created_at,
+                            'notes' => $item->notes
+                        ];
+                    })
+                ];
+            });
 
             return response()->json([
                 "message" => "Users retrieved successfully",
-                "data" => $users
+                "data" => $result
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -70,11 +88,27 @@ class UserController extends Controller
     public function show(string $id)
     {
         try {
-            $user = User::findOrFail($id);
+            $user = User::with(['mutations.productLocation.product'])->findOrFail($id);
+
+            $result = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mutation' => $user->mutations->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'product' => $item->productLocation->product->name,
+                        'type' => $item->type,
+                        'quantity' => $item->quantity,
+                        'date' => $item->created_at,
+                        'notes' => $item->notes
+                    ];
+                })
+            ];
 
             return response()->json([
                 "message" => "User retrieved successfully",
-                "data" => $user
+                "data" => $result
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([

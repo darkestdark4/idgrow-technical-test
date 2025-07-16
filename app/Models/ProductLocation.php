@@ -21,4 +21,9 @@ class ProductLocation extends Model
     {
         return $this->belongsTo(Location::class);
     }
+
+    public function mutations()
+    {
+        return $this->hasMany(Mutation::class);
+    }
 }

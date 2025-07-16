@@ -29,11 +29,46 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $products = Product::with('category')->get();
+            $products = Product::with(['category', 'productLocations.mutations'])->get();
+
+            $result = $products->map(function ($product) {
+                // define product location
+                $productLocation = $product->productLocations->map(function ($item) {
+                    // define mutations
+                    $mutation = $item->mutations->map(function ($mutation) {
+                        return [
+                            'id' => $mutation->id,
+                            'type' => $mutation->type,
+                            'quantity' => $mutation->quantity,
+                            'date' => $mutation->created_at
+                        ];
+                    });
+
+                    return [
+                        'id' => $item->id,
+                        'location' => $item->location->name,
+                        'stock' => $item->stock,
+                        'mutation' => $mutation
+                    ];
+                });
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'code' => $product->code,
+                    'unit' => $product->unit,
+                    'description' => $product->description,
+                    'image' => $product->image,
+                    'category' => $product->category->name,
+                    'location' => $productLocation
+                ];
+            });
+
+            // $result = ProductLocation::with(['mutations'])->get();
 
             return response()->json([
                 "message" => "Products retrieved successfully",
-                "data" => $products
+                "data" => $result
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -100,11 +135,41 @@ class ProductController extends Controller
     public function show(string $id)
     {
         try {
-            $product = Product::with('category')->findOrFail($id);
+            $product = Product::with(['category', 'productLocations.mutations'])->findOrFail($id);
+
+            $productLocation = $product->productLocations->map(function ($item) {
+                // define mutations
+                $mutation = $item->mutations->map(function ($mutation) {
+                    return [
+                        'id' => $mutation->id,
+                        'type' => $mutation->type,
+                        'quantity' => $mutation->quantity,
+                        'date' => $mutation->created_at
+                    ];
+                });
+
+                return [
+                    'id' => $item->id,
+                    'location' => $item->location->name,
+                    'stock' => $item->stock,
+                    'mutation' => $mutation
+                ];
+            });
+
+            $result = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'code' => $product->code,
+                'unit' => $product->unit,
+                'description' => $product->description,
+                'image' => $product->image,
+                'category' => $product->category->name,
+                'location' => $productLocation
+            ];
 
             return response()->json([
                 "message" => "Product retrieved successfully",
-                "data" => $product
+                "data" => $result
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
