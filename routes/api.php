@@ -6,14 +6,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\MutationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('category', CategoryController::class);
+
+    Route::post('product/location', [ProductController::class, 'add_product_location']);
     Route::apiResource('product', ProductController::class);
     Route::apiResource('location', LocationController::class);
     Route::apiResource('user', UserController::class);
+    Route::apiResource('mutation', MutationController::class)->only(['index', 'store', 'show']);
 });
 
 Route::prefix('auth')->group(function () {
